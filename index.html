@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StreamAnime | Premium OTT</title>
+    <style>
+        :root {
+            --bg-color: #0a0a0c;
+            --card-bg: #16161a;
+            --accent-color: #ff3e3e;
+            --text-color: #ffffff;
+            --text-muted: #a0a0a5;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            overflow-x: hidden;
+        }
+
+        /* Navbar */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 6%;
+            position: absolute;
+            width: 100%;
+            z-index: 10;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.7), transparent);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-color);
+        }
+
+        .logo span {
+            color: var(--accent-color);
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 55vh;
+            display: flex;
+            align-items: center;
+            padding: 0 6%;
+            background: linear-gradient(to right, rgba(10, 10, 12, 0.9), rgba(10, 10, 12, 0.4)), 
+                        url('https://images.unsplash.com/photo-1578632767115-351597cf2477?q=80&w=1920') no-repeat center center/cover;
+            border-bottom: 1px solid #222;
+        }
+
+        .hero-content {
+            max-width: 600px;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            font-weight: 800;
+        }
+
+        .hero p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+
+        /* Main Content */
+        main {
+            padding: 40px 6%;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 25px;
+            font-weight: 600;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -6px;
+            width: 40px;
+            height: 3px;
+            background-color: var(--accent-color);
+            border-radius: 2px;
+        }
+
+        /* Anime Grid */
+        .anime-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 25px;
+        }
+
+        .anime-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            border: 1px solid #222;
+        }
+
+        .anime-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(255, 62, 62, 0.15);
+            border-color: #333;
+        }
+
+        .poster-wrapper {
+            position: relative;
+            aspect-ratio: 2 / 3;
+            overflow: hidden;
+        }
+
+        .poster-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .anime-card:hover .poster-wrapper img {
+            transform: scale(1.05);
+        }
+
+        .rank-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background-color: var(--accent-color);
+            color: white;
+            font-weight: bold;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+        }
+
+        .play-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .anime-card:hover .play-overlay {
+            opacity: 1;
+        }
+
+        .play-btn {
+            background: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            transition: transform 0.2s ease;
+        }
+
+        .play-btn svg {
+            fill: #000;
+            margin-left: 2px;
+        }
+
+        .play-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .anime-info {
+            padding: 15px;
+        }
+
+        .anime-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .anime-meta {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Modal / Video Player */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            width: 90%;
+            max-width: 850px;
+            aspect-ratio: 16 / 9;
+            background: #000;
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .modal-content video {
+            width: 100%;
+            height: 100%;
+            background: #000;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: -40px;
+            right: 0;
+            color: white;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .close-modal:hover {
+            color: var(--accent-color);
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2rem; }
+            .hero { height: 40vh; }
+            .close-modal { top: 10px; right: 10px; background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 4px; z-index: 10;}
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo">Stream<span>Anime</span></div>
+    </nav>
+
+    <div class="hero">
+        <div class="hero-content">
+            <h1>Explore the Epic Center</h1>
+            <p>Stream the highest-rated, trending anime series of the season. Click on any title below to watch the official cinematic trailer instantly.</p>
+        </div>
+    </div>
+
+    <main>
+        <h2 class="section-title">Top 5 Trending Anime</h2>
+        
+        <div class="anime-grid">
+            <!-- Card 1 -->
+            <div class="anime-card" data-video="https://ott-anime-platform-bucket.s3.ap-south-1.amazonaws.com/trailers/black-clover.mp4">
+                <div class="poster-wrapper">
+                    <span class="rank-badge">#1</span>
+                    <img src="https://ott-anime-platform-bucket.s3.ap-south-1.amazonaws.com/posters/black-clover.jpg" alt="Black Clover">
+                    <div class="play-overlay">
+                        <button class="play-btn">
+                            <svg height="24" viewBox="0 0 24 24" width="24"><path d="M8 5v14l11-7z"/></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="anime-info">
+                    <div class="anime-title">Black Clover Season 2</div>
+                    <div class="anime-meta">
+                        <span>Action, Fantasy</span>
+                        <span>⭐ 8.7</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="anime-card" data-video="https://ott-anime-platform-bucket.s3.ap-south-1.amazonaws.com/trailers/dr.stone.mp4">
+                <div class="poster-wrapper">
+                    <span class="rank-badge">#2</span>
+                    <img src="https://ott-anime-platform-bucket.s3.ap-south-1.amazonaws.com/posters/dr.stone.webp" alt="Dr. Stone">
+                    <div class="play-overlay">
+                        <button class="play-btn">
+                            <svg height="24" viewBox="0 0 24 24" width="24"><path d="M8 5v14l11-7z"/></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="anime-info">
+                    <div class="anime-title">Dr. Stone Season 3</div>
+                    <div class="anime-meta">
+                        <span>Dark Fantasy, Sci-Fi</span>
+                        <span>⭐ 8.6</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="anime-card" data-video="https://ott-anime-platform-bucket.s3.ap-south-1.amazonaws.com/trailers/mushoku-tensei.mp4">
+                <div class="poster-wrapper">
+                    <span class="rank-badge">#3</span>
+                    <img src="https://ott-anime-platform-bucket.s3.ap-south-1.amazonaws.com/posters/mushoku-tensei.jpg" alt="Mushoku Tensei">
+                    <div class="play-overlay">
+                        <button class="play-btn">
+                            <svg height="24" viewBox="0 0 24 24" width="24"><path d="M8 5v14l11-7z"/></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="anime-info">
+                    <div class="anime-title">Mushoku Tensei</div>
+                    <div class="anime-meta">
+                        <span>Dark Fantasy, Supernatural</span>
+                        <span>⭐ 9.1</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 4 -->
+            <div class="anime-card" data-video="https://ott-anime-platform-bucket.s3.ap-south-1.amazonaws.com/trailers/sentenced-to-be-a-hero.mp4">
+                <div class="poster-wrapper">
+                    <span class="rank-badge">#4</span>
+                    <img src="https://ott-anime-platform-bucket.s3.ap-south-1.amazonaws.com/posters/sentenced-to-be-a-hero.jpg" alt="Sentenced to be a Hero">
+                    <div class="play-overlay">
+                        <button class="play-btn">
+                            <svg height="24" viewBox="0 0 24 24" width="24"><path d="M8 5v14l11-7z"/></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="anime-info">
+                    <div class="anime-title">Sentenced to be a Hero</div>
+                    <div class="anime-meta">
+                        <span>Action, Gore</span>
+                        <span>⭐ 8.4</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 5 -->
+            <div class="anime-card" data-video="https://ott-anime-platform-bucket.s3.ap-south-1.amazonaws.com/trailers/solo-leveling.mp4">
+                <div class="poster-wrapper">
+                    <span class="rank-badge">#5</span>
+                    <img src="https://ott-anime-platform-bucket.s3.ap-south-1.amazonaws.com/posters/solo-leveling.jpg" alt="Solo Leveling">
+                    <div class="play-overlay">
+                        <button class="play-btn">
+                            <svg height="24" viewBox="0 0 24 24" width="24"><path d="M8 5v14l11-7z"/></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="anime-info">
+                    <div class="anime-title">Solo Leveling: Season 3</div>
+                    <div class="anime-meta">
+                        <span>Adventure, Fantasy</span>
+                        <span>⭐ 8.9</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Video Modal Container -->
+    <div class="modal" id="videoModal">
+        <div class="modal-content">
+            <button class="close-modal" id="closeBtn">&times; Close</button>
+            <video id="videoPlayer" controls autoplay playsinline></video>
+        </div>
+    </div>
+
+    <script>
+        const cards = document.querySelectorAll('.anime-card');
+        const modal = document.getElementById('videoModal');
+        const player = document.getElementById('videoPlayer');
+        const closeBtn = document.getElementById('closeBtn');
+
+        // Open Modal, link video src, and trigger video play lifecycle
+        cards.forEach(card => {
+            card.addEventListener('click', () => {
+                const videoUrl = card.getAttribute('data-video');
+                player.src = videoUrl;
+                modal.classList.add('active');
+                player.load();
+                player.play().catch(error => {
+                    console.log("Autoplay context initialization prevented by browser policies:", error);
+                });
+            });
+        });
+
+        // Close Modal, clear sources, and pause stream elements completely
+        const closeModal = () => {
+            modal.classList.remove('active');
+            player.pause();
+            player.removeAttribute('src'); 
+            player.load();
+        };
+
+        closeBtn.addEventListener('click', closeModal);
+        
+        // Close if clicked outside the container bounds
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
